@@ -1,0 +1,327 @@
+
+CREATE TYPE [Flag]
+	FROM BIT NULL
+go
+
+CREATE TYPE [Name]
+	FROM NVARCHAR(50) NULL
+go
+
+CREATE TYPE [Zip_4]
+	FROM NVARCHAR(15) NULL
+go
+
+CREATE TYPE [ID_Number]
+	FROM UNIQUEIDENTIFIER NULL
+go
+
+CREATE TYPE [NVarchar100]
+	FROM NVARCHAR(100) NULL
+go
+
+CREATE TYPE [AddressLine]
+	FROM NVARCHAR(150) NULL
+go
+
+CREATE TYPE [City]
+	FROM NVARCHAR(50) NULL
+go
+
+CREATE TYPE [State]
+	FROM NVARCHAR(30) NULL
+go
+
+CREATE TYPE [LastUpdateUser]
+	FROM NVARCHAR(128) NOT NULL
+go
+
+CREATE TYPE [CreateUser]
+	FROM NVARCHAR(128) NOT NULL
+go
+
+CREATE TYPE [CreateDateTime]
+	FROM DATETIME2 NOT NULL
+go
+
+CREATE TYPE [SystemEffectiveStartDateTime]
+	FROM DATETIME2 NOT NULL
+go
+
+CREATE TYPE [SystemEffectiveEndDateTime]
+	FROM DATETIME2 NOT NULL
+go
+
+CREATE TYPE [EffectiveDateTime]
+	FROM DATETIME2 NULL
+go
+
+CREATE TYPE [Hash_Value]
+	FROM BINARY(64) NULL
+go
+
+CREATE TYPE [Domain_505]
+	FROM UNIQUEIDENTIFIER NULL
+go
+
+CREATE TYPE [Domain_561]
+	FROM UNIQUEIDENTIFIER NULL
+go
+
+CREATE TYPE [Domain_597]
+	FROM UNIQUEIDENTIFIER NULL
+go
+
+CREATE TABLE [CONSTITUENT]
+( 
+	[UniversalConstituentID] [ID_Number]  NOT NULL 
+	CONSTRAINT [UniqueIdentifierDefaultValue_1123033363]
+		 DEFAULT  NEWSEQUENTIALID(),
+	[Title]              [Name]  NULL ,
+	[FirstName]          [Name]  NULL ,
+	[LastName]           [Name]  NULL ,
+	[FullName]           [Name]  NULL ,
+	[Suffix]             [Name]  NULL ,
+	[OrganizationName]   [Name]  NULL ,
+	[SalutationGreetingEnvelope] [NVarchar100]  NULL ,
+	[SalutationGreetingInside] [NVarchar100]  NULL ,
+	[DateOfLastGift]     date  NULL ,
+	[AmountOfLastGift]   decimal(14,2)  NULL ,
+	[DateOfFirstGift]    date  NULL ,
+	[LifetimeNumberOfGifts] decimal(14,2)  NULL ,
+	[LifetimeGiftAmount] decimal(14,2)  NULL ,
+	[DateOfLargestGift]  date  NULL ,
+	[AmountOfLargestGift] decimal(14,2)  NULL ,
+	[DoNotMailFlag]      [Flag]  NULL ,
+	[VolunteerFlag]      [Flag]  NULL ,
+	[VolunteerHours]     decimal(8,2)  NULL ,
+	[RestoreDonorFlag]   [Flag]  NULL ,
+	[RestoreShopperFlag] [Flag]  NULL ,
+	[MonthlyRecurringDonorFlag] [Flag]  NULL ,
+	[StaffFlag]          [Flag]  NULL ,
+	[BoardMemberFlag]    [Flag]  NULL ,
+	[PortfolioDonorFlag] [Flag]  NULL ,
+	[DoNotSolicitFlag]   [Flag]  NULL ,
+	[DoNotContactFlag]   [Flag]  NULL ,
+	[AdvocateFlag]       [Flag]  NULL ,
+	[Employer]           [NVarchar100]  NULL ,
+	[EffectiveDateTime]  [EffectiveDateTime]  NOT NULL 
+	CONSTRAINT [EffectiveDateTimeDefaultValue_277712710]
+		 DEFAULT  SYSUTCDATETIME(),
+	[DoNotEmailFlag]     [Flag]  NULL ,
+	[DoNotExchangeFlag]  [Flag]  NULL ,
+	[DoNotPhoneFlag]     [Flag]  NULL ,
+	[Title2]             nvarchar(100)  NULL ,
+	[Gender]             nvarchar(255)  NULL ,
+	[CreateUser]         [CreateUser] 
+	CONSTRAINT [CreateUserDefaultValue_1673916622]
+		 DEFAULT  (SUSER_SNAME()),
+	[CreateDateTime]     [CreateDateTime] 
+	CONSTRAINT [CreateDateTimeDefaultValue_1542049506]
+		 DEFAULT  SYSUTCDATETIME(),
+	[SystemEffectiveStartDateTime] [SystemEffectiveStartDateTime] 
+	CONSTRAINT [EffectiveStartDateTimeDefaultValue_1256263339]
+		 DEFAULT  SYSUTCDATETIME(),
+	[SystemEffectiveEndDateTime] [SystemEffectiveEndDateTime] 
+	CONSTRAINT [EffectiveEndDateTimeDefaultValue_1015025163]
+		 DEFAULT  CAST('9999-12-31 23:59:59.9999999' AS DATETIME2),
+	[LoggedInUser]       AS (SUSER_SNAME()) ,
+	[CRMLookupID]        nvarchar(100)  NULL ,
+	[OrganizationFlag]   [Flag]  NULL ,
+	[NameHashValue]      [Hash_Value] ,
+	[AddressHashValue]   [Hash_Value] ,
+	[HouseholdHashValue] [Hash_Value] ,
+	[Suffix2]            [Name]  NULL ,
+	[IndustryType]       nvarchar(100)  NULL ,
+	[AffiliateSourcedFlag] [Flag] ,
+	[CollaborativeFundraisingDoNotEmailFlag] [Flag] ,
+	[CollaborativeFundraisingDoNotMailFlag] [Flag] ,
+	[CollaborativeFundraisingDoNotPhoneFlag] [Flag] ,
+	[HonorAndMemorialGivingFlag] [Flag] ,
+	[IRAGivingFlag]      [Flag] ,
+	[PlannedGivingFlag]  [Flag] ,
+	[ConstituentRequestedCOMCadenceValue] nchar(4)  NULL ,
+	[LastVolunteerDate]  date  NULL ,
+	[ConstituentType]    nchar(1)  NULL 
+	CONSTRAINT [Validation_Rule_9694_219378524]
+		CHECK  ( [ConstituentType]='I' OR [ConstituentType]='O' OR [ConstituentType]='H' OR [ConstituentType]='G' )
+)
+go
+
+ALTER TABLE [CONSTITUENT]
+	ADD CONSTRAINT [XPKCONSTITUENT] PRIMARY KEY  NONCLUSTERED ([UniversalConstituentID] ASC)
+go
+
+CREATE TRIGGER com.tD_Constituent_Master ON com.CONSTITUENT FOR DELETE AS
+/* erwin Builtin Trigger */
+/* DELETE trigger on CONSTITUENT */
+BEGIN
+  DECLARE  @errno   int,
+           @severity int,
+           @state    int,
+           @errmsg  varchar(255)
+    /* erwin Builtin Trigger */
+    /* com.CONSTITUENT  com.CONSTITUENT_ADDRESS on parent delete no action */
+    /* ERWIN_RELATION:CHECKSUM="0003d876", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_ADDRESS"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="R_21", FK_COLUMNS="UniversalConstituentID" */
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_ADDRESS
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_ADDRESS,deleted," = "," AND") */
+        com.CONSTITUENT_ADDRESS.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30001,
+             @errmsg = 'Cannot delete com.CONSTITUENT because com.CONSTITUENT_ADDRESS exists.'
+      GOTO error
+    END
+
+    /* erwin Builtin Trigger */
+    /* com.CONSTITUENT  com.CONSTITUENT_OWNER on parent delete no action */
+    /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_OWNER"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="FK_CONSTITUENT_OWNER_TO_CONSTITUENT", FK_COLUMNS="UniversalConstituentID" */
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_OWNER
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_OWNER,deleted," = "," AND") */
+        com.CONSTITUENT_OWNER.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30001,
+             @errmsg = 'Cannot delete com.CONSTITUENT because com.CONSTITUENT_OWNER exists.'
+      GOTO error
+    END
+
+    /* erwin Builtin Trigger */
+    /* com.CONSTITUENT  com.CONSTITUENT_ADDRESS on parent delete no action */
+    /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_ADDRESS"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="FK_CONSTITUENT_ADDRESS_TO_CONSTITUENT", FK_COLUMNS="UniversalConstituentID" */
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_ADDRESS
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_ADDRESS,deleted," = "," AND") */
+        com.CONSTITUENT_ADDRESS.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30001,
+             @errmsg = 'Cannot delete com.CONSTITUENT because com.CONSTITUENT_ADDRESS exists.'
+      GOTO error
+    END
+
+
+    /* erwin Builtin Trigger */
+    RETURN
+error:
+   RAISERROR (@errmsg, -- Message text.
+              @severity, -- Severity (0~25).
+              @state) -- State (0~255).
+    rollback transaction
+END
+
+go
+
+
+
+
+CREATE TRIGGER com.tU_Constituent_Master ON com.CONSTITUENT FOR UPDATE AS
+/* erwin Builtin Trigger */
+/* UPDATE trigger on CONSTITUENT */
+BEGIN
+  DECLARE  @numrows int,
+           @nullcnt int,
+           @validcnt int,
+           @insUniversalConstituentID ID_Number,
+           @errno   int,
+           @severity int,
+           @state    int,
+           @errmsg  varchar(255)
+
+  SELECT @numrows = @@rowcount
+  /* erwin Builtin Trigger */
+  /* com.CONSTITUENT  com.CONSTITUENT_ADDRESS on parent update no action */
+  /* ERWIN_RELATION:CHECKSUM="0004488f", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_ADDRESS"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="R_21", FK_COLUMNS="UniversalConstituentID" */
+  IF
+    /* %ParentPK(" OR",UPDATE) */
+    UPDATE(UniversalConstituentID)
+  BEGIN
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_ADDRESS
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_ADDRESS,deleted," = "," AND") */
+        com.CONSTITUENT_ADDRESS.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30005,
+             @errmsg = 'Cannot update com.CONSTITUENT because com.CONSTITUENT_ADDRESS exists.'
+      GOTO error
+    END
+  END
+
+  /* erwin Builtin Trigger */
+  /* com.CONSTITUENT  com.CONSTITUENT_OWNER on parent update no action */
+  /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_OWNER"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="FK_CONSTITUENT_OWNER_TO_CONSTITUENT", FK_COLUMNS="UniversalConstituentID" */
+  IF
+    /* %ParentPK(" OR",UPDATE) */
+    UPDATE(UniversalConstituentID)
+  BEGIN
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_OWNER
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_OWNER,deleted," = "," AND") */
+        com.CONSTITUENT_OWNER.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30005,
+             @errmsg = 'Cannot update com.CONSTITUENT because com.CONSTITUENT_OWNER exists.'
+      GOTO error
+    END
+  END
+
+  /* erwin Builtin Trigger */
+  /* com.CONSTITUENT  com.CONSTITUENT_ADDRESS on parent update no action */
+  /* ERWIN_RELATION:CHECKSUM="00000000", PARENT_OWNER="com", PARENT_TABLE="CONSTITUENT"
+    CHILD_OWNER="com", CHILD_TABLE="CONSTITUENT_ADDRESS"
+    P2C_VERB_PHRASE="", C2P_VERB_PHRASE="", 
+    FK_CONSTRAINT="FK_CONSTITUENT_ADDRESS_TO_CONSTITUENT", FK_COLUMNS="UniversalConstituentID" */
+  IF
+    /* %ParentPK(" OR",UPDATE) */
+    UPDATE(UniversalConstituentID)
+  BEGIN
+    IF EXISTS (
+      SELECT * FROM deleted,com.CONSTITUENT_ADDRESS
+      WHERE
+        /*  %JoinFKPK(com.CONSTITUENT_ADDRESS,deleted," = "," AND") */
+        com.CONSTITUENT_ADDRESS.UniversalConstituentID = deleted.UniversalConstituentID
+    )
+    BEGIN
+      SELECT @errno  = 30005,
+             @errmsg = 'Cannot update com.CONSTITUENT because com.CONSTITUENT_ADDRESS exists.'
+      GOTO error
+    END
+  END
+
+
+  /* erwin Builtin Trigger */
+  RETURN
+error:
+   RAISERROR (@errmsg, -- Message text.
+              @severity, -- Severity (0~25).
+              @state) -- State (0~255).
+    rollback transaction
+END
+
+go
+
+
+
